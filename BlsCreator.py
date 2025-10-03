@@ -8,7 +8,6 @@ class BlsCreator:
         pass
 
     def run_bls(self):
-# --- your existing part ---
         lc = lk.search_lightcurve("KIC 11446443", mission="Kepler", author="Kepler", exptime=1800, quarter=2)\
         .download().remove_nans()
 
@@ -22,7 +21,7 @@ class BlsCreator:
         t  = clean.time.value.astype("float32")
         y  = clean.flux.value.astype("float32")
         dy = (clean.flux_err.value.astype("float32")
-            if getattr(clean, "flux_err", None) is not None else None)
+        if getattr(clean, "flux_err", None) is not None else None)
 
         bls = BoxLeastSquares(t, y, dy)
         dur_coarse_h = np.array([1.0, 2.0, 3.0], dtype="float32")   # hours
@@ -51,17 +50,15 @@ class BlsCreator:
         best_t0       = best["best_t0"]
         best_duration = best["best_duration"]
         best_depth    = best["best_depth"]
-        best_snr_like = best["best_power"]  # SNR objective        return clean, res2, bls, best_period, best_t0, best_duration
+        best_snr_like = best["best_power"]  # SNR objective     
         return clean, results, bls, best_period, best_t0, best_duration
 
 
     def bls_autopower_chunked(self, bls, pmin, pmax, durations_days, nfreq=20000, chunks=8):
-    # Frequency grid (even in frequency is best for BLS)
         fmin, fmax = 1.0/pmax, 1.0/pmin
         freq = np.linspace(fmin, fmax, nfreq, dtype="float64")
         periods = 1.0 / freq
 
-        # Collect periodogram as "max over durations" per period (autopower-like)
         per_out, pow_out = [], []
         t0_out, dur_out, depth_out = [], [], []
 
@@ -74,7 +71,6 @@ class BlsCreator:
             best_dur = np.zeros_like(p_chunk, dtype="float64")
 
             for d in durations_days:
-                # Ensure we don’t violate "max duration < min period" rule
                 if d >= p_chunk.min():
                     continue
                 try:
